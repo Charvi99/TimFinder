@@ -7,10 +7,11 @@ form.addEventListener('submit', async (e) => {
     const flightNumber = document.getElementById('flight-number').value;
     try {
         const resp = await fetch(`/api/flight/${flightNumber}`);
-        if (!resp.ok) {
-            throw new Error('Flight not found');
-        }
         const data = await resp.json();
+        if (!resp.ok) {
+            throw new Error(data.description || 'Flight not found');
+        }
+
         const { latitude, longitude } = data;
         if (!map) {
             map = L.map('map').setView([latitude, longitude], 6);

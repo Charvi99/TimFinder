@@ -2,11 +2,11 @@ import os
 import requests
 from flask import Flask, jsonify, abort, send_from_directory
 
-
 app = Flask(__name__)
 
 API_KEY = os.environ.get("AVIATIONSTACK_KEY")
-API_BASE = "http://api.aviationstack.com/v1/flights"
+API_BASE = "https://api.aviationstack.com/v1/flights"
+
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend')
 
 
@@ -29,22 +29,34 @@ def favicon():
 def flight_info(flight_number):
     if not API_KEY:
         abort(500, description="API key not configured")
+
     params = {
         'access_key': API_KEY,
-        'flight_iata': flight_number
+        'flight_iata': flight_number,
+        'limit': 1
     }
-    resp = requests.get(API_BASE, params=params, timeout=10)
-    if resp.status_code != 200:
-        abort(resp.status_code)
+
+    try:
+        resp = requests.get(API_BASE, params=params, timeout=10)
+        resp.raise_for_status()
+    except requests.RequestException:
+        abort(502, description="Error contacting AviationStack")
+
     data = resp.json()
+
+    if 'error' in data:
+        abort(502, description=data['error'].get('message', 'API error'))
+
     flights = data.get('data', [])
     if not flights:
         abort(404, description="Flight not found")
+
     # Use the first flight entry
     flight = flights[0]
-    position = flight.get('live', {})
+    position = flight.get('live')
     if not position:
         abort(404, description="No live data for this flight")
+
     return jsonify({
         'latitude': position.get('latitude'),
         'longitude': position.get('longitude'),
