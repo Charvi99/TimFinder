@@ -1,13 +1,23 @@
 import os
 import requests
 from flask import Flask, jsonify, abort, send_from_directory
+from werkzeug.exceptions import HTTPException
+
 
 app = Flask(__name__)
 
 API_KEY = os.environ.get("AVIATIONSTACK_KEY")
 API_BASE = "https://api.aviationstack.com/v1/flights"
-
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend')
+
+
+@app.errorhandler(HTTPException)
+def handle_http_error(e):
+    """Return JSON responses for all HTTP errors."""
+    response = jsonify({'description': e.description})
+    response.status_code = e.code or 500
+    return response
+
 
 
 @app.route('/')
