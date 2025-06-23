@@ -3,11 +3,11 @@ import requests
 from flask import Flask, jsonify, abort, send_from_directory
 from werkzeug.exceptions import HTTPException
 
-
 app = Flask(__name__)
 
-API_KEY = os.environ.get("AVIATIONSTACK_KEY")
-API_BASE = "https://api.aviationstack.com/v1/flights"
+OPENSKY_USERNAME = os.environ.get("OPENSKY_USERNAME")
+OPENSKY_PASSWORD = os.environ.get("OPENSKY_PASSWORD")
+API_BASE = "https://opensky-network.org/api/states/all"
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend')
 
 
@@ -17,7 +17,6 @@ def handle_http_error(e):
     response = jsonify({'description': e.description})
     response.status_code = e.code or 500
     return response
-
 
 
 @app.route('/')
@@ -37,40 +36,31 @@ def favicon():
 
 @app.route('/api/flight/<flight_number>')
 def flight_info(flight_number):
-    if not API_KEY:
-        abort(500, description="API key not configured")
-
-    params = {
-        'access_key': API_KEY,
-        'flight_iata': flight_number,
-        'limit': 1
-    }
+    params = {'callsign': flight_number}
+    auth = None
+    if OPENSKY_USERNAME and OPENSKY_PASSWORD:
+        auth = (OPENSKY_USERNAME, OPENSKY_PASSWORD)
 
     try:
-        resp = requests.get(API_BASE, params=params, timeout=10)
+        resp = requests.get(API_BASE, params=params, auth=auth, timeout=10)
         resp.raise_for_status()
     except requests.RequestException:
-        abort(502, description="Error contacting AviationStack")
+        abort(502, description="Error contacting OpenSky")
 
     data = resp.json()
-
-    if 'error' in data:
-        abort(502, description=data['error'].get('message', 'API error'))
-
-    flights = data.get('data', [])
-    if not flights:
+    states = data.get('states')
+    if not states:
         abort(404, description="Flight not found")
 
-    # Use the first flight entry
-    flight = flights[0]
-    position = flight.get('live')
-    if not position:
-        abort(404, description="No live data for this flight")
+    state = states[0]
+    latitude = state[6]
+    longitude = state[5]
+    altitude = state[13] if state[13] is not None else state[7]
 
     return jsonify({
-        'latitude': position.get('latitude'),
-        'longitude': position.get('longitude'),
-        'altitude': position.get('altitude')
+        'latitude': latitude,
+        'longitude': longitude,
+        'altitude': altitude
     })
 
 if __name__ == '__main__':
