@@ -43,6 +43,7 @@ Then start the application with `python backend/app.py`.
 
 ## Frontend
 
-Open `frontend/index.html` in a browser. Enter a flight number and the page will
-request location data from the backend and place a marker on an interactive
-map.
+After the backend is running, open `http://localhost:5000/` in your browser.
+Enter a flight number and the page will request location data from the backend
+and place a marker on an interactive map.
+

@@ -1,11 +1,29 @@
 import os
 import requests
-from flask import Flask, jsonify, abort
+from flask import Flask, jsonify, abort, send_from_directory
+
 
 app = Flask(__name__)
 
 API_KEY = os.environ.get("AVIATIONSTACK_KEY")
 API_BASE = "http://api.aviationstack.com/v1/flights"
+FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend')
+
+
+@app.route('/')
+def index():
+    return send_from_directory(FRONTEND_DIR, 'index.html')
+
+
+@app.route('/main.js')
+def main_js():
+    return send_from_directory(FRONTEND_DIR, 'main.js')
+
+
+@app.route('/favicon.ico')
+def favicon():
+    # Return empty response to avoid 404 warnings in logs
+    return '', 204
 
 @app.route('/api/flight/<flight_number>')
 def flight_info(flight_number):
