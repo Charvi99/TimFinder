@@ -11,6 +11,7 @@ form.addEventListener('submit', async (e) => {
         if (!resp.ok) {
             throw new Error(data.description || 'Flight not found');
         }
+
         const { latitude, longitude } = data;
         if (!map) {
             map = L.map('map').setView([latitude, longitude], 6);

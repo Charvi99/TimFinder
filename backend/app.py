@@ -3,6 +3,7 @@ import requests
 from flask import Flask, jsonify, abort, send_from_directory
 from werkzeug.exceptions import HTTPException
 
+
 app = Flask(__name__)
 
 API_KEY = os.environ.get("AVIATIONSTACK_KEY")
@@ -16,6 +17,7 @@ def handle_http_error(e):
     response = jsonify({'description': e.description})
     response.status_code = e.code or 500
     return response
+
 
 
 @app.route('/')
