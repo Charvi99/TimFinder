@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 API_KEY = os.environ.get("AVIATIONSTACK_KEY")
 API_BASE = "https://api.aviationstack.com/v1/flights"
+
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend')
 
 
