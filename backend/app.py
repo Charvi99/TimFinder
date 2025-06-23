@@ -3,12 +3,24 @@ import requests
 from flask import Flask, jsonify, abort, send_from_directory
 
 
-app = Flask(__name__)
+API_BASE = "https://api.aviationstack.com/v1/flights"
 
-API_KEY = os.environ.get("AVIATIONSTACK_KEY")
-API_BASE = "http://api.aviationstack.com/v1/flights"
-FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend')
 
+        'flight_iata': flight_number,
+        'limit': 1
+
+    try:
+        resp = requests.get(API_BASE, params=params, timeout=10)
+        resp.raise_for_status()
+    except requests.RequestException:
+        abort(502, description="Error contacting AviationStack")
+
+
+    if 'error' in data:
+        abort(502, description=data['error'].get('message', 'API error'))
+
+
+    position = flight.get('live')
 
 @app.route('/')
 def index():

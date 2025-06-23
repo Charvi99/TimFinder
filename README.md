@@ -41,6 +41,9 @@ $env:AVIATIONSTACK_KEY='your_key_here'    # PowerShell
 
 Then start the application with `python backend/app.py`.
 
+If a request fails with "Flight not found" it may mean the flight is not
+currently in the air or that no live data is available from the API.
+
 ## Frontend
 
 After the backend is running, open `http://localhost:5000/` in your browser.
