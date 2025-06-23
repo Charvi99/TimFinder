@@ -2,6 +2,7 @@ import os
 import requests
 from flask import Flask, jsonify, abort, send_from_directory
 
+
 app = Flask(__name__)
 
 API_KEY = os.environ.get("AVIATIONSTACK_KEY")
