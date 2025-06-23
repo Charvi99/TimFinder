@@ -27,9 +27,19 @@ pip install -r backend/requirements.txt
 ### Run
 
 ```bash
-export AVIATIONSTACK_KEY=your_key_here
+export AVIATIONSTACK_KEY=your_key_here  # Linux/macOS
 python backend/app.py
 ```
+
+If you are on Windows, use one of the following commands to set the
+`AVIATIONSTACK_KEY` variable before running the backend:
+
+```
+set AVIATIONSTACK_KEY=your_key_here       # Command Prompt
+$env:AVIATIONSTACK_KEY='your_key_here'    # PowerShell
+```
+
+Then start the application with `python backend/app.py`.
 
 ## Frontend
 
