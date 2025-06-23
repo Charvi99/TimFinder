@@ -36,26 +36,37 @@ def favicon():
 
 @app.route('/api/flight/<flight_number>')
 def flight_info(flight_number):
-    params = {'callsign': flight_number}
+    """Return the location of the plane with the given callsign."""
     auth = None
     if OPENSKY_USERNAME and OPENSKY_PASSWORD:
         auth = (OPENSKY_USERNAME, OPENSKY_PASSWORD)
 
     try:
-        resp = requests.get(API_BASE, params=params, auth=auth, timeout=10)
+        resp = requests.get(API_BASE, auth=auth, timeout=10)
         resp.raise_for_status()
     except requests.RequestException:
         abort(502, description="Error contacting OpenSky")
 
-    data = resp.json()
-    states = data.get('states')
-    if not states:
+    try:
+        data = resp.json()
+    except ValueError:
+        abort(502, description="Invalid response from OpenSky")
+
+    states = data.get('states') or []
+    search = flight_number.strip().upper()
+    match = None
+    for state in states:
+        callsign = (state[1] or '').strip().upper()
+        if callsign == search:
+            match = state
+            break
+
+    if not match:
         abort(404, description="Flight not found")
 
-    state = states[0]
-    latitude = state[6]
-    longitude = state[5]
-    altitude = state[13] if state[13] is not None else state[7]
+    latitude = match[6]
+    longitude = match[5]
+    altitude = match[13] if match[13] is not None else match[7]
 
     return jsonify({
         'latitude': latitude,

@@ -13,9 +13,10 @@ The backend lives in `backend/` and exposes a single endpoint:
 GET /api/flight/<flight_number>
 ```
 
-The endpoint uses the OpenSky `states/all` API filtered by flight callsign.
-No API key is required, but you may provide credentials for better rate limits
-via the `OPENSKY_USERNAME` and `OPENSKY_PASSWORD` environment variables.
+The endpoint queries the OpenSky `states/all` API and searches the returned
+list of aircraft for the given flight callsign. No API key is required, but you
+may provide credentials for better rate limits via the `OPENSKY_USERNAME` and
+`OPENSKY_PASSWORD` environment variables.
 
 ### Install dependencies
 
